@@ -56,18 +56,25 @@
             android:layout_height="wrap_content"
             android:text="ADD" />
 
-        <Button
-            android:id="@+id/btnEdit"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="invisible"
-            android:text="EDIT" />
+            android:gravity="center"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/btnEdit"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:text="EDIT" />
 
-        <Button
-            android:id="@+id/btnDelete"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="invisible"
-            android:text="DELETE" />
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:text="DELETE" />
+        </LinearLayout>
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
