@@ -1,5 +1,7 @@
 package com.example.headsupprep
 
+import android.R
+import android.app.AlertDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,6 +12,10 @@ import com.example.headsupprep.databinding.ActivityAddBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import android.content.DialogInterface
+
+
+
 
 
 
@@ -20,6 +26,8 @@ class AddActivity : AppCompatActivity() {
     private lateinit var tobo1 : String
     private lateinit var tobo2 : String
     private lateinit var tobo3 : String
+
+    private val helper by lazy { DatabaseHelper(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +49,7 @@ class AddActivity : AppCompatActivity() {
                 //fill
                 Toast.makeText(this,"please fill all the fields",Toast.LENGTH_LONG).show()
             }else {
-                addNewCelebrities()
+                alert()
             }
         }
         binding.btnEdit.setOnClickListener {
@@ -65,7 +73,7 @@ class AddActivity : AppCompatActivity() {
                 binding.et1.text.toString(),binding.et2.text.toString(),
                 binding.et3.text.toString()))?.enqueue(object: Callback<CelebritiesItem>{
                 override fun onResponse(call: Call<CelebritiesItem>, response: Response<CelebritiesItem>) {
-                    Toast.makeText(this@AddActivity,"Celebrities added successfully ",Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@AddActivity,"Celebrities added successfully global",Toast.LENGTH_LONG).show()
                     toMainActivity()
                 }
 
@@ -78,7 +86,7 @@ class AddActivity : AppCompatActivity() {
 
 
     }
-    fun deleteData(){
+    private fun deleteData(){
         val api = Client().requestClient()?.create(APIrequests::class.java)
         api?.deleteData(id)?.enqueue(object: Callback<Void>{
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
@@ -93,7 +101,7 @@ class AddActivity : AppCompatActivity() {
 
         } )
     }
-    fun editData(){
+    private fun editData(){
         val api = Client().requestClient()?.create(APIrequests::class.java)
         api?.updateData(id , CelebritiesItem(binding.etName.text.toString(),id,
             binding.et1.text.toString(),binding.et2.text.toString(),
@@ -110,6 +118,26 @@ class AddActivity : AppCompatActivity() {
 
         } )
     }
+
+    private fun alert(){
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Add Celebrity")
+        builder.setMessage("Add new Celebrity to?")
+        builder.setNegativeButton("Local") { dialog, which ->
+            helper.saveData(
+                binding.etName.text.toString(), binding.et1.text.toString(),
+                binding.et2.text.toString(), binding.et3.text.toString())
+            Toast.makeText(this@AddActivity, "Celebrities added successfully local ", Toast.LENGTH_LONG).show()
+            toMainActivity()
+        }
+
+        builder.setNeutralButton("Global") { dialog, which ->
+            addNewCelebrities()
+        }
+        builder.show()
+    }
+
     fun toMainActivity(){
         val toMainActivity = Intent(this,MainActivity::class.java)
         startActivity(toMainActivity)
