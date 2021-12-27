@@ -16,11 +16,13 @@ import java.lang.Exception
 class MainActivity : AppCompatActivity() {
     private lateinit var binding : ActivityMainBinding
     private lateinit var celList : ArrayList<CelebritiesItem>
+    private val helper by lazy { DatabaseHelper(this) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        getCelebrities()
+        //getCelebrities()
+        getLocalCelebrities()
         binding.btnAdd.setOnClickListener {
             val toAddActivity = Intent(this,AddActivity::class.java)
             startActivity(toAddActivity)
@@ -40,12 +42,15 @@ class MainActivity : AppCompatActivity() {
                     Log.d("Main","$e")
                 }
             }
-
             override fun onFailure(call: Call<Celebrities>, t: Throwable) {
                 Toast.makeText(this@MainActivity,"Something went wrong while reading data",Toast.LENGTH_LONG).show()
             }
-
         })
+    }
+    private fun getLocalCelebrities(){
+        celList = arrayListOf()
+        celList = helper.read()
+        adapter()
     }
     fun adapter(){
         binding.mainRV.adapter = AdapterMain(celList,this)
