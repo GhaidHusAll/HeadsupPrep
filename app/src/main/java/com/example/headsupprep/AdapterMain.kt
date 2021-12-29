@@ -4,9 +4,11 @@ import android.app.Activity
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.headsupprep.apiModel.CelebritiesItem
 import com.example.headsupprep.databinding.RowBinding
+import com.example.headsupprep.roomModel.CelebritiesRoom
 
-class AdapterMain(private val list: ArrayList<CelebritiesItem>, val activity: Activity):RecyclerView.Adapter<AdapterMain.Holder>() {
+class AdapterMain(private val list: ArrayList<CelebritiesRoom>, val activity: Activity):RecyclerView.Adapter<AdapterMain.Holder>() {
     class Holder ( val binding: RowBinding): RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {

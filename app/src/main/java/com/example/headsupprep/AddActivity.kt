@@ -1,6 +1,5 @@
 package com.example.headsupprep
 
-import android.R
 import android.app.AlertDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -12,11 +11,17 @@ import com.example.headsupprep.databinding.ActivityAddBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import android.content.DialogInterface
-
-
-
-
+import com.example.headsupprep.apiModel.APIrequests
+import com.example.headsupprep.apiModel.CelebritiesItem
+import com.example.headsupprep.apiModel.Client
+import com.example.headsupprep.roomModel.CelebritiesDB
+import com.example.headsupprep.roomModel.CelebritiesRoom
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class AddActivity : AppCompatActivity() {
@@ -27,6 +32,7 @@ class AddActivity : AppCompatActivity() {
     private lateinit var tobo2 : String
     private lateinit var tobo3 : String
 
+    private val dao by lazy { CelebritiesDB.getDB(this).dao() }
     private val helper by lazy { DatabaseHelper(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,10 +59,12 @@ class AddActivity : AppCompatActivity() {
             }
         }
         binding.btnEdit.setOnClickListener {
-            editData()
+           // editData()
+            editLocalData()
         }
         binding.btnDelete.setOnClickListener {
-            deleteData()
+           // deleteData()
+            deleteLocalData()
         }
 
     }
@@ -69,9 +77,11 @@ class AddActivity : AppCompatActivity() {
     private fun addNewCelebrities(){
         val myAPI = Client().requestClient()?.create(APIrequests::class.java)
 
-            myAPI?.addData(CelebritiesItem(binding.etName.text.toString(),0,
+            myAPI?.addData(
+                CelebritiesItem(binding.etName.text.toString(),0,
                 binding.et1.text.toString(),binding.et2.text.toString(),
-                binding.et3.text.toString()))?.enqueue(object: Callback<CelebritiesItem>{
+                binding.et3.text.toString())
+            )?.enqueue(object: Callback<CelebritiesItem>{
                 override fun onResponse(call: Call<CelebritiesItem>, response: Response<CelebritiesItem>) {
                     Toast.makeText(this@AddActivity,"Celebrities added successfully global",Toast.LENGTH_LONG).show()
                     toMainActivity()
@@ -105,7 +115,8 @@ class AddActivity : AppCompatActivity() {
         val api = Client().requestClient()?.create(APIrequests::class.java)
         api?.updateData(id , CelebritiesItem(binding.etName.text.toString(),id,
             binding.et1.text.toString(),binding.et2.text.toString(),
-            binding.et3.text.toString()))?.enqueue(object: Callback<CelebritiesItem>{
+            binding.et3.text.toString())
+        )?.enqueue(object: Callback<CelebritiesItem>{
             override fun onResponse(call: Call<CelebritiesItem>, response: Response<CelebritiesItem>) {
                 Toast.makeText(this@AddActivity,"edited celebrities successfully",Toast.LENGTH_LONG).show()
                 toMainActivity()
@@ -119,19 +130,42 @@ class AddActivity : AppCompatActivity() {
         } )
     }
 
+    private fun deleteLocalData(){
+      CoroutineScope(IO).launch {
+          dao.deleteCele(CelebritiesRoom(id,name,tobo1,tobo2,tobo3))
+          withContext(Main){
+              Toast.makeText(this@AddActivity, "Celebrities Deleted successfully local ", Toast.LENGTH_LONG).show()
+              toMainActivity()
+          }
+      }
+    }
+    private fun editLocalData(){
+      CoroutineScope(IO).launch {
+          dao.updateCele(CelebritiesRoom(id,binding.etName.text.toString(),binding.et1.text.toString(),binding.et2.text.toString(),binding.et3.text.toString()))
+          withContext(Main){
+              Toast.makeText(this@AddActivity,"edited celebrities successfully",Toast.LENGTH_LONG).show()
+              toMainActivity()
+          }
+      }
+    }
+
+
     private fun alert(){
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Add Celebrity")
         builder.setMessage("Add new Celebrity to?")
         builder.setNegativeButton("Local") { dialog, which ->
-            helper.saveData(
+            CoroutineScope(IO).launch {
+            dao.addCele(CelebritiesRoom(0,
                 binding.etName.text.toString(), binding.et1.text.toString(),
-                binding.et2.text.toString(), binding.et3.text.toString())
+                binding.et2.text.toString(), binding.et3.text.toString()))
+                withContext(Main){
             Toast.makeText(this@AddActivity, "Celebrities added successfully local ", Toast.LENGTH_LONG).show()
             toMainActivity()
-        }
-
+                }
+            }
+    }
         builder.setNeutralButton("Global") { dialog, which ->
             addNewCelebrities()
         }

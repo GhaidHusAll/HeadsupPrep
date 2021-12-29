@@ -6,7 +6,19 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.headsupprep.apiModel.APIrequests
+import com.example.headsupprep.apiModel.Celebrities
+import com.example.headsupprep.apiModel.CelebritiesItem
+import com.example.headsupprep.apiModel.Client
 import com.example.headsupprep.databinding.ActivityMainBinding
+import com.example.headsupprep.roomModel.CelebritiesDB
+import com.example.headsupprep.roomModel.CelebritiesRoom
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 import retrofit2.Call
 import retrofit2.Callback
@@ -15,14 +27,16 @@ import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding : ActivityMainBinding
-    private lateinit var celList : ArrayList<CelebritiesItem>
+    private lateinit var celList : ArrayList<CelebritiesRoom>
     private val helper by lazy { DatabaseHelper(this) }
+    private val dao by lazy { CelebritiesDB.getDB(this).dao() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         //getCelebrities()
-        getLocalCelebrities()
+        //getLocalCelebrities()
+        getLocalRoomCelebrities()
         binding.btnAdd.setOnClickListener {
             val toAddActivity = Intent(this,AddActivity::class.java)
             startActivity(toAddActivity)
@@ -36,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         api?.fetchData()?.enqueue(object: Callback<Celebrities> {
             override fun onResponse(call: Call<Celebrities>, response: Response<Celebrities>) {
                 try{
-                    celList = response.body()!!
+                   // celList = response.body()!!
                     adapter()
                 }catch (e: Exception){
                     Log.d("Main","$e")
@@ -49,9 +63,22 @@ class MainActivity : AppCompatActivity() {
     }
     private fun getLocalCelebrities(){
         celList = arrayListOf()
-        celList = helper.read()
+      //  celList = helper.read()
         adapter()
     }
+    private fun getLocalRoomCelebrities(){
+        CoroutineScope(IO).launch {
+            val returnData = async{dao.getCele()}.await()
+            if (returnData.isNotEmpty()){
+                celList = returnData as ArrayList<CelebritiesRoom>
+                withContext(Main){
+                    adapter()
+                }
+            }
+        }
+    }
+
+
     fun adapter(){
         binding.mainRV.adapter = AdapterMain(celList,this)
         binding.mainRV.layoutManager = LinearLayoutManager(this)

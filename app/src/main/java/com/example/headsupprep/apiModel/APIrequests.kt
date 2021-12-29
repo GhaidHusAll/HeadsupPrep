@@ -1,4 +1,4 @@
-package com.example.headsupprep
+package com.example.headsupprep.apiModel
 
 import retrofit2.Call
 import retrofit2.http.*

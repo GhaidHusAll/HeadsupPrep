@@ -1,4 +1,4 @@
-package com.example.headsupprep
+package com.example.headsupprep.apiModel
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

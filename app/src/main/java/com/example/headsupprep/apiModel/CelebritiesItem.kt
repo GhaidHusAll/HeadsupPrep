@@ -1,4 +1,4 @@
-package com.example.headsupprep
+package com.example.headsupprep.apiModel
 
 data class CelebritiesItem(
     val name: String,

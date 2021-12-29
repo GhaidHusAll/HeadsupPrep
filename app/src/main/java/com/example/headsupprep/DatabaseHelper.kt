@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.example.headsupprep.apiModel.CelebritiesItem
 
 class DatabaseHelper(context: Context): SQLiteOpenHelper(context,"celebritie.db",null,2) {
     private val db: SQLiteDatabase = writableDatabase
@@ -30,12 +31,16 @@ class DatabaseHelper(context: Context): SQLiteOpenHelper(context,"celebritie.db"
         val list = arrayListOf<CelebritiesItem>()
         val cursor: Cursor = db.rawQuery("SELECT * FROM celebrities",null)
         if (cursor.count < 1){
-            list.add(CelebritiesItem("No Celebrity yet",0,
-               "","",""))
+            list.add(
+                CelebritiesItem("No Celebrity yet",0,
+               "","","")
+            )
         }else{
             while (cursor.moveToNext()){
-                list.add(CelebritiesItem(cursor.getString(1),cursor.getInt(0),
-                    cursor.getString(2),cursor.getString(3),cursor.getString(4)))
+                list.add(
+                    CelebritiesItem(cursor.getString(1),cursor.getInt(0),
+                    cursor.getString(2),cursor.getString(3),cursor.getString(4))
+                )
             }
         }
         return list
