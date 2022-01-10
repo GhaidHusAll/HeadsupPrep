@@ -8,7 +8,7 @@ import com.example.headsupprep.apiModel.CelebritiesItem
 import com.example.headsupprep.databinding.RowBinding
 import com.example.headsupprep.roomModel.CelebritiesRoom
 
-class AdapterMain(private val list: ArrayList<CelebritiesRoom>, val activity: Activity):RecyclerView.Adapter<AdapterMain.Holder>() {
+class AdapterMain(private var list: List<CelebritiesRoom>, val activity: Activity):RecyclerView.Adapter<AdapterMain.Holder>() {
     class Holder ( val binding: RowBinding): RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -31,4 +31,9 @@ class AdapterMain(private val list: ArrayList<CelebritiesRoom>, val activity: Ac
     }
 
     override fun getItemCount()= list.size
+
+    fun update(myList:List<CelebritiesRoom>){
+        this.list = myList
+        notifyDataSetChanged()
+    }
 }
